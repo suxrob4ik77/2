@@ -13,4 +13,20 @@ class GroupStudentSerializer(serializers.ModelSerializer):
           fields = '__all__'
 
 
+class TableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ['id', 'start_time', 'end_time', 'room', 'type', 'descriptions']
+
+class TableTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TableType
+        fields = ['id', 'title', 'descriptions']
+
+class RoomsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rooms
+        fields = ['id', 'title', 'descriptions']
+
+
 

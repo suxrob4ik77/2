@@ -4,11 +4,13 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
-from ..models import Student, User,Parents
-from ..serializers import StudentSerializer, StudentUserSerializer, StudentPostSerializer,ParentsSerializer
+from ..models import Student, User, Parents
+from ..serializers import StudentSerializer, StudentUserSerializer, StudentPostSerializer, ParentsSerializer
 from ..pagination import StudentPagination
-from rest_framework.generics import  get_object_or_404
+from rest_framework.generics import get_object_or_404
 from ..permissions import IsAdminOrReadPatchOnly
+
+
 class StudentApi(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
@@ -52,23 +54,22 @@ class StudentApi(viewsets.ModelViewSet):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
-
-from ..pagination import StudentPagination
-
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
     pagination_class = StudentPagination
 
+
 class ParentViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminOrReadPatchOnly]
+    pagination_class = StudentPagination
 
     def list(self, request):
         parents = Parents.objects.all()
-        paginator = StudentPagination
+        paginator = self.pagination_class()
         result_page = paginator.paginate_queryset(parents, request)
         serializer = ParentsSerializer(result_page, many=True)
-        return Response(serializer.data)
+        return paginator.get_paginated_response(serializer.data)
 
     def retrieve(self, request, pk=None):
         parent = get_object_or_404(Parents, pk=pk)
@@ -98,7 +99,7 @@ class ParentViewSet(viewsets.ViewSet):
     def delete_parent(self, request, pk=None):
         parent = get_object_or_404(Parents, pk=pk)
         parent.delete()
-        return Response({'status':True,'detail': 'Parent muaffaqiatli uchirildi'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 

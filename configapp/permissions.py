@@ -22,8 +22,14 @@ class IsAdminOrReadPatchOnly(BasePermission):
         # Student foydalanuvchiga faqat GET ruxsat
         elif user.is_authenticated and user.is_student:
             return request.method in SAFE_METHODS
-
+        # Parents foydalanuvchiga
         elif user.is_authenticated and user.is_parents:
+            return request.method in SAFE_METHODS
+        # Department uchun
+        elif user.is_authenticated and user.is_course:
+            return request.method in SAFE_METHODS
+        # Course uchun
+        elif user.is_authenticated and user.is_department:
             return request.method in SAFE_METHODS
 
         return False

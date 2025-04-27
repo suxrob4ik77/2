@@ -69,19 +69,20 @@
 
 
 
-from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from ..models import Teacher
 from ..serializers import TeacherSerializer
 from ..serializers.teacher_serializer import TeacherSerializer, TeacherPostSerializer, TeacherUserSerializer
-from ..models import User
-from ..permissions import IsGetOrPatchOnly
-from ..pagination import TeacherPagination
+from ..permissions import IsGetOrPatchOnly, IsAdminOrReadPatchOnly
+from rest_framework.viewsets import ModelViewSet
+from ..pagination import CoursePagination,DepartmentPagination,TeacherPagination
+from ..serializers import CourseSerializer,DepartmentSerializer
+from ..models import Departments,Course,User,Teacher
+
+
 
 
 class TeacherViewSet(viewsets.ModelViewSet):
@@ -130,15 +131,17 @@ class TeacherViewSet(viewsets.ModelViewSet):
 
 
 
-from ..pagination import TeacherPagination
+class DepartmentViewSet(ModelViewSet):
+    queryset = Departments.objects.all()
+    serializer_class = DepartmentSerializer
+    pagination_class = DepartmentPagination
+    permission_classes = [IsAdminOrReadPatchOnly]
 
-
-class TeacherViewSet(viewsets.ModelViewSet):
-    queryset = Teacher.objects.all()
-    serializer_class = TeacherSerializer
-    pagination_class = TeacherPagination
-
-
+class CourseViewSet(ModelViewSet):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    pagination_class = CoursePagination
+    permission_classes = [IsAdminOrReadPatchOnly]
 
 
 

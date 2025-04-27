@@ -39,7 +39,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Departments
-        fields = ['id', 'title', 'is_active', 'search_fields', 'descriptions']
+        fields = ['id', 'title', 'is_active', 'descriptions']
 
 
 # from rest_framework import serializers
