@@ -33,3 +33,20 @@ class DepartmentPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+class MonthPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
+class PaynetPagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+class PaynettypePagination(PageNumberPagination):
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+

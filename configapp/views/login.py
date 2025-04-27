@@ -1,8 +1,8 @@
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from drf_yasg.utils import swagger_auto_schema
-
-from rest_framework import status
+from django.shortcuts import get_object_or_404
+from rest_framework import status, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -97,3 +97,36 @@ class RegisterUserApi(APIView):
         users = User.objects.all().order_by('-id')
         serializer = UserSerializer(users, many=True)
         return Response(data=serializer.data)
+
+class UserDetailView(APIView):
+    def get_object(self, pk):
+        return get_object_or_404(User, pk=pk)
+
+    @swagger_auto_schema(request_body=UserSerializer)
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            password = serializer.validated_data.get('password')
+            serializer.validated_data['password'] = make_password(password)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        user.delete()
+        return Response({"detail": "Deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+
+
+class ChangePasswordView(APIView):
+    permission_classes = (permissions.IsAuthenticated)
+
+    @swagger_auto_schema(request_body=ChangePasswordSerializer)
+    def patch(self, request, *args, **kwargs):
+        serializer = ChangePasswordSerializer(instance=self.request.user, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)

@@ -60,11 +60,10 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.db.models import Q
 from ..models.davomat_model import Davomat
 from ..models.model_teacher import Teacher
 from ..serializers.davomat_serializer import DavomatSerializer, DavomatCreateSerializer
-from ..permissions import IsTeacherOnly, IsAdminOrTeacher
+from ..permissions import IsAdminOrTeacher
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -72,6 +71,7 @@ from drf_yasg import openapi
 
 class DavomatViewSet(viewsets.ModelViewSet):
     serializer_class = DavomatSerializer
+    permission_classes = [IsAdminOrTeacher]
 
     def get_queryset(self):
         user = self.request.user
@@ -94,6 +94,58 @@ class DavomatViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['request'] = self.request
         return context
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("Avval tizimga kirishingiz kerak.")
+
+        if not (user.is_superuser or getattr(user, 'is_admin', False) or user.is_teacher):
+            raise PermissionDenied("Sizga davomat qo'shish uchun ruxsat yo'q.")
+
+        try:
+            teacher = Teacher.objects.get(user=user)
+        except Teacher.DoesNotExist:
+            raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(teacher=teacher)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("Avval tizimga kirishingiz kerak.")
+
+        instance = self.get_object()
+        
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            try:
+                teacher = Teacher.objects.get(user=user)
+                if instance.teacher != teacher:
+                    raise PermissionDenied("Siz faqat o'zingiz yaratgan davomatlarni tahrirlashingiz mumkin.")
+            except Teacher.DoesNotExist:
+                raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("Avval tizimga kirishingiz kerak.")
+
+        instance = self.get_object()
+        
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            try:
+                teacher = Teacher.objects.get(user=user)
+                if instance.teacher != teacher:
+                    raise PermissionDenied("Siz faqat o'zingiz yaratgan davomatlarni o'chirishingiz mumkin.")
+            except Teacher.DoesNotExist:
+                raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+
+        return super().destroy(request, *args, **kwargs)
 
     @swagger_auto_schema(
         manual_parameters=[

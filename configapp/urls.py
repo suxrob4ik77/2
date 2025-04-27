@@ -15,15 +15,19 @@ router.register(r'course', CourseViewSet, basename='course')
 router.register(r'table', TableViewSet, basename='table')
 router.register(r'table_type', TableTypeViewSet, basename='tabletype')
 router.register(r'rooms', RoomsViewSet, basename='rooms')
+router.register(r'homeworks',HomeworkViewSet,basename='homework')
+router.register(r'homework-submissions',HomeworkSubmissionViewSet,basename='homework-submission')
+router.register(r'homework-reviews',HomeworkReviewViewSet,basename='homework-review')
+router.register(r'months',MonthViewSet,basename='month')
+router.register(r'payment-type',PaymentTypeViewSet,basename='payment-type')
+router.register(r'payment',PaymentViewSet,basename='payment')
 
 
 urlpatterns = [
     path('post_send_otp/', PhoneSendOTP.as_view()),
     path('post_v_otp/', VerifySMS.as_view()),
     path('register/', RegisterUserApi.as_view()),
-    # path('student/', StudentApi.as_view()),
     path('token/', LoginApi.as_view(), name='token'),
-    # path('teacher/create/', TeacherCreateApi.as_view(), name='teacher-create'),
     path('', include(router.urls)),
 ]
 
