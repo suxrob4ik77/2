@@ -76,7 +76,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from ..serializers import TeacherSerializer
 from ..serializers.teacher_serializer import TeacherSerializer, TeacherPostSerializer, TeacherUserSerializer
-from ..permissions import IsGetOrPatchOnly, IsAdminOrReadPatchOnly
+from ..permissions import *
 from rest_framework.viewsets import ModelViewSet
 from ..pagination import CoursePagination,DepartmentPagination,TeacherPagination
 from ..serializers import CourseSerializer,DepartmentSerializer
@@ -89,7 +89,7 @@ class TeacherViewSet(viewsets.ModelViewSet):
     queryset = Teacher.objects.all()
     serializer_class = TeacherSerializer
     pagination_class = TeacherPagination
-    permission_classes = [IsGetOrPatchOnly]
+    # permission_classes = [IsGetOrPatchOnly]
 
     def get_serializer_class(self):
         data={'success':True}
@@ -135,13 +135,13 @@ class DepartmentViewSet(ModelViewSet):
     queryset = Departments.objects.all()
     serializer_class = DepartmentSerializer
     pagination_class = DepartmentPagination
-    permission_classes = [IsAdminOrReadPatchOnly]
+    # permission_classes = [IsAdminOrReadPatchOnly]
 
 class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     pagination_class = CoursePagination
-    permission_classes = [IsAdminOrReadPatchOnly]
+    # permission_classes = [IsAdminOrReadPatchOnly]
 
 
 

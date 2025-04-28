@@ -63,7 +63,7 @@ from rest_framework.decorators import action
 from ..models.davomat_model import Davomat
 from ..models.model_teacher import Teacher
 from ..serializers.davomat_serializer import DavomatSerializer, DavomatCreateSerializer
-from ..permissions import IsAdminOrTeacher
+from ..permissions import *
 from rest_framework.exceptions import PermissionDenied
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -71,19 +71,13 @@ from drf_yasg import openapi
 
 class DavomatViewSet(viewsets.ModelViewSet):
     serializer_class = DavomatSerializer
-    permission_classes = [IsAdminOrTeacher]
+    # permission_classes = [IsAdminOrTeacher]
 
     def get_queryset(self):
         user = self.request.user
-
         if user.is_superuser or getattr(user, 'is_admin', False):
             return Davomat.objects.all()
-
-        try:
-            teacher = Teacher.objects.get(user=user)
-            return Davomat.objects.filter(teacher=teacher)
-        except Teacher.DoesNotExist:
-            raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+        return Davomat.objects.none()  # Non-admin users can't see any records
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -100,17 +94,12 @@ class DavomatViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             raise PermissionDenied("Avval tizimga kirishingiz kerak.")
 
-        if not (user.is_superuser or getattr(user, 'is_admin', False) or user.is_teacher):
-            raise PermissionDenied("Sizga davomat qo'shish uchun ruxsat yo'q.")
-
-        try:
-            teacher = Teacher.objects.get(user=user)
-        except Teacher.DoesNotExist:
-            raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            raise PermissionDenied("Faqat admin foydalanuvchilari davomat qo'shishi mumkin.")
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(teacher=teacher)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
@@ -118,15 +107,8 @@ class DavomatViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             raise PermissionDenied("Avval tizimga kirishingiz kerak.")
 
-        instance = self.get_object()
-        
         if not (user.is_superuser or getattr(user, 'is_admin', False)):
-            try:
-                teacher = Teacher.objects.get(user=user)
-                if instance.teacher != teacher:
-                    raise PermissionDenied("Siz faqat o'zingiz yaratgan davomatlarni tahrirlashingiz mumkin.")
-            except Teacher.DoesNotExist:
-                raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+            raise PermissionDenied("Faqat admin foydalanuvchilari davomatni tahrirlashi mumkin.")
 
         return super().update(request, *args, **kwargs)
 
@@ -135,15 +117,8 @@ class DavomatViewSet(viewsets.ModelViewSet):
         if not user.is_authenticated:
             raise PermissionDenied("Avval tizimga kirishingiz kerak.")
 
-        instance = self.get_object()
-        
         if not (user.is_superuser or getattr(user, 'is_admin', False)):
-            try:
-                teacher = Teacher.objects.get(user=user)
-                if instance.teacher != teacher:
-                    raise PermissionDenied("Siz faqat o'zingiz yaratgan davomatlarni o'chirishingiz mumkin.")
-            except Teacher.DoesNotExist:
-                raise PermissionDenied("Sizga bog'langan o'qituvchi topilmadi.")
+            raise PermissionDenied("Faqat admin foydalanuvchilari davomatni o'chirishi mumkin.")
 
         return super().destroy(request, *args, **kwargs)
 
@@ -167,6 +142,10 @@ class DavomatViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['get'])
     def by_group(self, request):
+        user = request.user
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            raise PermissionDenied("Faqat admin foydalanuvchilari bu ma'lumotlarni ko'rishi mumkin.")
+
         group_id = request.query_params.get('group_id')
         if not group_id:
             return Response({
@@ -211,6 +190,10 @@ class DavomatViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['get'])
     def by_student(self, request):
+        user = request.user
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            raise PermissionDenied("Faqat admin foydalanuvchilari bu ma'lumotlarni ko'rishi mumkin.")
+
         student_id = request.query_params.get('student_id')
         if not student_id:
             return Response({
@@ -255,6 +238,10 @@ class DavomatViewSet(viewsets.ModelViewSet):
     )
     @action(detail=False, methods=['get'])
     def by_date(self, request):
+        user = request.user
+        if not (user.is_superuser or getattr(user, 'is_admin', False)):
+            raise PermissionDenied("Faqat admin foydalanuvchilari bu ma'lumotlarni ko'rishi mumkin.")
+
         date = request.query_params.get('date')
         if not date:
             return Response({

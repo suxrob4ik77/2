@@ -8,8 +8,8 @@ from ..models import Homework, HomeworkSubmission, HomeworkReview
 
 class HomeworkSerializer(serializers.ModelSerializer):
     teacher = serializers.PrimaryKeyRelatedField(queryset=Teacher.objects.all(), required=True)
-    group = serializers.IntegerField(required=True)
-
+    # group = serializers.IntegerField(required=True)
+    group = serializers.PrimaryKeyRelatedField(queryset=GroupStudent.objects.all())
     class Meta:
         model = Homework
         fields = ['id', 'title', 'description', 'group', 'teacher', 'created_at', 'updated_at']

@@ -8,7 +8,7 @@ from ..models import Student, User, Parents
 from ..serializers import StudentSerializer, StudentUserSerializer, StudentPostSerializer, ParentsSerializer
 from ..pagination import StudentPagination
 from rest_framework.generics import get_object_or_404
-from ..permissions import IsAdminOrReadPatchOnly
+from ..permissions import *
 
 
 class StudentApi(viewsets.ModelViewSet):
@@ -61,7 +61,7 @@ class StudentViewSet(viewsets.ModelViewSet):
 
 
 class ParentViewSet(viewsets.ViewSet):
-    permission_classes = [IsAdminOrReadPatchOnly]
+    # permission_classes = [IsAdminOrReadPatchOnly]
     pagination_class = StudentPagination
 
     def list(self, request):

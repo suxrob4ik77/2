@@ -5,14 +5,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ..pagination import *
-from ..permissions import IsAdminOnly
+from ..permissions import *
 from ..models import Payment, Month, PaymentType
 from ..serializers import MonthSerializer, PaymentTypeSerializer, PaymentSerializer
 
 
 #Month
 class MonthViewSet(viewsets.ViewSet):
-    permission_classes = [IsAdminOnly]
+    # permission_classes = [IsAdminOnly]
 
     def list(self, request):
         months = Month.objects.all()
@@ -53,7 +53,7 @@ class MonthViewSet(viewsets.ViewSet):
 
 #PaymentType
 class PaymentTypeViewSet(viewsets.ViewSet):
-    permission_classes = [IsAdminOnly]
+    # permission_classes = [IsAdminOnly]
 
     def list(self, request):
         types = PaymentType.objects.all()
@@ -95,7 +95,7 @@ class PaymentTypeViewSet(viewsets.ViewSet):
 
 #Payment
 class PaymentViewSet(viewsets.ViewSet):
-    permission_classes = [IsAdminOnly]
+    # permission_classes = [IsAdminOnly]
 
     def list(self, request):
         payments = Payment.objects.all()
