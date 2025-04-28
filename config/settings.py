@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-@)=)y&0r1ut$7-vi+u@^sgg^^3l2he^kv3qv-5$ehn7z0i$-)0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','164.92.180.27','abdusamatov.uz',"https://abdusamatov.uz","http://abdusamatov.uz"]
 
 
 # Application definition
@@ -113,11 +113,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
+import os
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -144,6 +145,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH':False,
 }
+
 
 AUTH_USER_MODEL = 'configapp.User'
 
